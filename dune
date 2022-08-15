@@ -1,0 +1,14 @@
+(executable
+ (name redraw)
+ (preprocess (pps js_of_ocaml-ppx))
+ (modes js))
+
+(alias
+ (name default)
+ (deps redraw.bc.js main.js index.html (glob_files src/*)))
+
+; How this is working ? how to better control warnings and errors?
+; Do configure VSCode so that the auto complete won't be so genant
+(env
+  (dev
+    (flags (:standard -w -26 -w -32 -w -21 -w -27))))
