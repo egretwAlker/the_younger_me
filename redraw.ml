@@ -52,22 +52,24 @@ let ps = Array.make 1 img0;;
 let vx = ref 0.;;
 let vy = ref 0.;;
 
-(* maintain the curve in the GR of earth while showing the image in the GR of the ship *)
+(* maintain the curve (in practice, the informations of the event of the ship being (E)) in the GR of earth (K) while showing the image in the GR of the velocity of the ship relative to earth (K') *)
 let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_line =
-  let _cx = click_x -. w/.2. in
-  let _cy = click_y -. h/.2. in
-  let dx = _cx /. (sqrt ((_cx *. _cx)+.(_cy *. _cy))) in
-  let dy = _cy /. (sqrt ((_cx *. _cx)+.(_cy *. _cy))) in
+  let (dx, dy) = begin
+    let (_cx, _cy) = (click_x -. w/.2., click_y -. h/.2.) in
+    (_cx /. (sqrt ((_cx *. _cx)+.(_cy *. _cy))), _cy /. (sqrt ((_cx *. _cx)+.(_cy *. _cy))))
+  end in
   let lambda _ = 1./.sqrt (1. -. (!vx *. !vx +. !vy *. !vy)/.(cc*.cc)) in
   let tf {k1; k2; k3; k4; b1; b2} = tf k1 k2 k3 k4 b1 b2 in
   let draw img d = draw img (d.x -. d.w/.2.) (d.y -. d.h/.2.) d.w d.h; in
+
+  (* draw a line with two ends points under effect but not width *)
   let draw_line eff x1 y1 x2 y2 =
     let {k1;k2;k3;k4;b1;b2} = eff in
     id |> tf;
     draw_line (k1*.x1+.k3*.y1+.b1) (k2*.x1+.k4*.y1+.b2) (k1*.x2+.k3*.y2+.b1) (k2*.x2+.k4*.y2+.b2);
   in
 
-  (* the 2 lower rows *)
+  (* the 2 lower rows of the matrix of lorentz transformation *)
   let mat_vec _ =
     let lambda = lambda () in
     let v = ((!vx*. !vx)+.(!vy*. !vy)) in
@@ -82,13 +84,14 @@ let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_l
       1.+.(lambda-.1.)*.(!vy*. !vy)*.v
       )
   in
-  
-  (* get the x y of ship in its current GR *)
+
+  (* get the x y of ship in K' *)
   let getxy _ =
     let (a, b, c, d, e, f) = mat_vec () in 
     (a*. !t_earth+.c*.pship.x+.e*.pship.y, b*. !t_earth+.d*.pship.x+.f*.pship.y)
   in
 
+  (* get transformation from fix point in K to K' with t'=t_fit which is of E in K' *)
   let tv_earth _ =
     let lambda = lambda () in
     let t_fit = lambda *. (!t_earth -. !vx*.dcc*.pship.x -. !vy*.dcc*.pship.y) in
@@ -99,6 +102,7 @@ let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_l
     }
   in
 
+  (* draw the universe in K' *)
   let show _ =
     clear ();
     let (px, py) = getxy () in
@@ -145,6 +149,7 @@ let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_l
   end;
   show ();
   tf id;
+  (* how to calculate the timer of earth in K' (t' of E)? we solve the equation L(t, 0, 0) = t' where L is the lorentz transformation from a event in K to a time in K' and (0, 0) is the location of all time of earth in K *)
   draw_text (Printf.sprintf "Earth Timer : %.2f Ship Timer : %.2f" (1. *. !t_earth -. !vx*.dcc*.pship.x -. !vy*.dcc*.pship.y) (!t_ship));
 ;;
 
