@@ -7,6 +7,8 @@ let cc = 0.8;;
 let dcc = 1./.(cc*.cc);;
 (* let inc = cc/.1000000.;; *)
 let inc = cc/.30.;;
+let limv = 1./.1.4;;
+let rr = 1.0066;; (* so half of the side length of the earth picture is a little bigger than the "earth radius unit" we set *)
 
 type tranv = {
   k1 : float;
@@ -120,8 +122,7 @@ let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_l
   in
 
   let init _ =
-    let tr = 1.0066 in
-    ps.(0) <- {x= 0.;y= 0.;w=2.*.tr;h=2.*.tr};
+    ps.(0) <- {x= 0.;y= 0.;w=2.*.rr;h=2.*.rr};
     pship.w <- fst ship_size; pship.h <- snd ship_size;
     pship.x <- 0.; pship.y <- 0.;
     show ();
@@ -142,9 +143,9 @@ let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_l
     vx := !vx +. dx *. inc;
     vy := !vy +. dy *. inc;
     let l = sqrt (!vx *. !vx +. !vy *. !vy) in
-    if l > cc/.2. then begin
-      vx := !vx /. l *. cc /. 2.;
-      vy := !vy /. l *. cc /. 2.;
+    if l > cc*.limv then begin
+      vx := !vx /. l *. cc *. limv;
+      vy := !vy /. l *. cc *. limv;
     end;
   end;
   show ();
