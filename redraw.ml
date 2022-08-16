@@ -7,7 +7,6 @@ let cc = 0.8;;
 let dcc = 1./.(cc*.cc);;
 (* let inc = cc/.1000000.;; *)
 let inc = cc/.30.;;
-let inc_set = cc/.3.;;
 
 type tranv = {
   k1 : float;
@@ -28,12 +27,6 @@ type imgdata = {
 let printimg i =
   Printf.printf "img : %f %f %f %f\n" i.x i.y i.w i.h;;
 
-let add i1 i2 =
-  {x=i1.x+.i2.x;y=i1.y+.i2.y;w=i1.w+.i2.w;h=i1.h+.i2.h};;
-
-let mul k i =
-  {x=k*.i.x;y=k*.i.y;w=k*.i.w;h=k*.i.h};;
-
 let nimg0 _ = {x=0.;y=0.;w=0.;h=0.};;
 let img0 = nimg0 ();;
 
@@ -48,15 +41,12 @@ let comb t2 t1 = {
   b2 = t2.k2 *. t1.b1 +. t2.k4 *. t1.b2 +. t2.b2;
 };;
 
-let app t (x, y) =
-  (t.k1*.x+.t.k3*.y+.t.b1, t.k2*.x+.t.k4*.y+.t.b2);;
-
 let print_tv t =
   Printf.printf "tv: %f %f %f %f %f %f\n" t.k1 t.k2 t.k3 t.k4 t.b1 t.b2;;
 
 (* let pship : vector ref = ref (0., 0.);; *)
 let pship = nimg0 ();;
-let t_ship = ref 0.;; (* timer on ship at the topo point (millisec) *)
+let t_ship = ref 0.;; (* timer on ship at the topo point (sec) *)
 let t_earth = ref 0.;; (* timer on earth at the topo point (sec) *)
 let ps = Array.make 1 img0;;
 let vx = ref 0.;;
@@ -95,7 +85,6 @@ let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_l
   
   (* get the x y of ship in its current GR *)
   let getxy _ =
-    let lambda = lambda () in
     let (a, b, c, d, e, f) = mat_vec () in 
     (a*. !t_earth+.c*.pship.x+.e*.pship.y, b*. !t_earth+.d*.pship.x+.f*.pship.y)
   in
@@ -135,19 +124,17 @@ let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_l
   in
 
   let go _ =
-    let dt = (ts -. !t_ship)*. lambda () /.1000. in
+    let dt = (ts/.1000. -. !t_ship)*. lambda () in
     t_earth := !t_earth +. dt;
     pship.x <- pship.x +. dt *. !vx;
     pship.y <- pship.y +. dt *. !vy;
-    t_ship := ts;
+    t_ship := ts/.1000.;
   in
 
   if !t_ship = 0. then init ();
   go ();
 
   if click_f then begin
-    (* vx := dx *. inc_set;
-    vy := dy *. inc_set; *)
     vx := !vx +. dx *. inc;
     vy := !vy +. dy *. inc;
     let l = sqrt (!vx *. !vx +. !vy *. !vy) in
@@ -158,7 +145,7 @@ let upd w h draw clear tf ship earth ts click_x click_y click_f draw_text draw_l
   end;
   show ();
   tf id;
-  draw_text (Printf.sprintf "Earth Timer : %.2f Ship Timer : %.2f" (1. *. !t_earth -. !vx*.dcc*.pship.x -. !vy*.dcc*.pship.y) (!t_ship/.1000.));
+  draw_text (Printf.sprintf "Earth Timer : %.2f Ship Timer : %.2f" (1. *. !t_earth -. !vx*.dcc*.pship.x -. !vy*.dcc*.pship.y) (!t_ship));
 ;;
 
 (* let _ = *)
