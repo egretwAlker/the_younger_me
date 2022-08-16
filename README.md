@@ -11,3 +11,5 @@ $$
 -\gamma{v_y \over c^2} & (\gamma-1){v_xv_y\over v^2} & 1+(\gamma-1){v_x^2\over v^2}\\
 \end{bmatrix}
 $$
+
+$\gamma = {1\over \sqrt{1-{v^2\over c^2}}}$
