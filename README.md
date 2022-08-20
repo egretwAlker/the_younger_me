@@ -13,3 +13,8 @@ $$
 $$
 
 $\gamma = {1\over \sqrt{1-{v^2\over c^2}}}$
+
+How to play:
+
+1. Click to add an amount of velocity to a certain direction (there's a limit for not depassing the speed of light).
+2. There's two numbers indicating at the upper-left corner of screen, respectively the time indicated by a clock on earth and the time indicated by a clock on the ship, in a Galilean referential which is of the same velocity as the ship to the earth.
